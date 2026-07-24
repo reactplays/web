@@ -1,0 +1,185 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+html,
+body {
+  background: #0a0a0a;
+  color: #ffffff;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "ss01" 1;
+  font-optical-sizing: auto;
+}
+
+body {
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
+  overflow-x: hidden;
+}
+
+/* Apple Liquid Glass background: a monochrome diagonal gradient (deep graphite
+   top-left to soft dark gray bottom-right), a soft glow behind the logo area
+   for depth, and two very slow, very faint drifting reflections. No color,
+   no brightness — only black mixed with a whisper of white. */
+.liquid-glass-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(48% 34% at 50% 15%, rgba(255, 255, 255, 0.07), transparent 72%),
+    radial-gradient(90% 55% at 8% 0%, rgba(255, 255, 255, 0.03), transparent 60%),
+    linear-gradient(135deg, #0a0a0a 0%, #161617 55%, #2a2a2a 100%);
+}
+
+.liquid-glass-bg::before,
+.liquid-glass-bg::after {
+  content: "";
+  position: absolute;
+  width: 60vw;
+  height: 60vw;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.05;
+}
+
+.liquid-glass-bg::before {
+  top: -10%;
+  left: -10%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.45), transparent 70%);
+  animation: drift 22s ease-in-out infinite;
+}
+
+.liquid-glass-bg::after {
+  bottom: -15%;
+  right: -10%;
+  background: radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.35), transparent 70%);
+  animation: drift 26s ease-in-out infinite reverse;
+}
+
+/* Reusable glass surface — layered Liquid Glass material:
+   1. a soft directional tint (base.glass-surface background)
+   2. an inset highlight/shadow pair that reads as physical thickness
+   3. a diagonal specular sheen (::before) that drifts almost imperceptibly
+   4. a hairline top-edge highlight (::after) like light catching a lens rim */
+.glass-surface {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.045) 45%, rgba(255, 255, 255, 0.09) 100%),
+    var(--tint, transparent),
+    rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--tint-border, rgba(255, 255, 255, 0.15));
+  backdrop-filter: blur(26px) saturate(165%) brightness(1.04);
+  -webkit-backdrop-filter: blur(26px) saturate(165%) brightness(1.04);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.28),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    var(--inner-glow, inset 0 0 0 rgba(0, 0, 0, 0)),
+    0 1px 1px rgba(0, 0, 0, 0.25),
+    0 12px 28px -10px rgba(0, 0, 0, 0.55),
+    0 28px 60px -20px rgba(0, 0, 0, 0.6),
+    var(--tint-glow, 0 0 0 rgba(0, 0, 0, 0));
+  transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, filter 0.35s ease;
+}
+
+.glass-surface::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  z-index: 1;
+  background: linear-gradient(
+    115deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.16) 45%,
+    rgba(255, 255, 255, 0.02) 58%,
+    transparent 78%
+  );
+  background-size: 250% 250%;
+  background-position: 20% 20%;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  animation: glassSheen 9s ease-in-out infinite;
+}
+
+.glass-surface::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  pointer-events: none;
+}
+
+.glass-surface:hover {
+  filter: brightness(1.06);
+}
+
+@keyframes glassSheen {
+  0%,
+  100% {
+    background-position: 10% 15%;
+  }
+  50% {
+    background-position: 90% 85%;
+  }
+}
+
+.glass-shimmer {
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.03) 20%,
+    rgba(255, 255, 255, 0.1) 42%,
+    rgba(255, 255, 255, 0.03) 64%
+  );
+  background-size: 200% 100%;
+}
+
+/* Extra ground shadow for the video frame — it's the visual anchor of the page,
+   so it should feel like it's sitting slightly further off the surface. */
+.glass-deep {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 1px 1px rgba(0, 0, 0, 0.3),
+    0 18px 40px -12px rgba(0, 0, 0, 0.6),
+    0 40px 80px -24px rgba(0, 0, 0, 0.65);
+}
+
+/* Visible keyboard focus */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.9);
+  outline-offset: 3px;
+  border-radius: 999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

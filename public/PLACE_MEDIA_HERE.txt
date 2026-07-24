@@ -1,0 +1,5 @@
+Drop these files here before launch (see README.md):
+- preview.webm
+- preview.mp4
+- preview-poster.jpg
+- og-image.jpg
