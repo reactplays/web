@@ -7,7 +7,15 @@ import { SITE_CONFIG } from "@/lib/config";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, delay: 0.45, ease: [0.22, 1, 0.36, 1] } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      delay: 0.45,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
 };
 
 export default function VideoPlayer() {
@@ -18,11 +26,15 @@ export default function VideoPlayer() {
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
+
     const onReady = () => setReady(true);
-    video.addEventListener("canplaythrough", onReady);
+
+    // Faster loading than canplaythrough
+    video.addEventListener("loadedmetadata", onReady);
     video.addEventListener("loadeddata", onReady);
+
     return () => {
-      video.removeEventListener("canplaythrough", onReady);
+      video.removeEventListener("loadedmetadata", onReady);
       video.removeEventListener("loadeddata", onReady);
     };
   }, []);
@@ -30,6 +42,7 @@ export default function VideoPlayer() {
   const toggleMute = () => {
     const video = videoRef.current;
     if (!video) return;
+
     video.muted = !video.muted;
     setMuted(video.muted);
   };
@@ -41,25 +54,27 @@ export default function VideoPlayer() {
       variants={fadeUp}
       className="relative w-full aspect-video overflow-hidden rounded-video glass-surface glass-deep"
     >
-      {/* Skeleton shown until the video reports it is ready */}
+      {/* Skeleton */}
       <div
         aria-hidden="true"
-        className={`absolute inset-0 glass-shimmer animate-shimmer transition-opacity duration-500 ${
+        className={`absolute inset-0 glass-shimmer animate-shimmer transition-opacity duration-300 ${
           ready ? "opacity-0" : "opacity-100"
         }`}
       />
 
       <video
         ref={videoRef}
-        className={`h-full w-full object-cover transition-opacity duration-500 ${
+        className={`h-full w-full object-cover transition-opacity duration-300 ${
           ready ? "opacity-100" : "opacity-0"
         }`}
         autoPlay
         loop
         muted
         playsInline
-        preload="metadata"
+        preload="auto"
         poster={SITE_CONFIG.videoSources.poster}
+        disablePictureInPicture
+        controlsList="nodownload noplaybackrate noremoteplayback"
         aria-label="REACT PLAYS preview video"
       >
         <source src={SITE_CONFIG.videoSources.webm} type="video/webm" />
@@ -76,7 +91,8 @@ export default function VideoPlayer() {
         className="glass-surface absolute right-4 top-4 z-[2] flex h-10 w-10 items-center justify-center rounded-full"
         style={
           {
-            "--tint": "radial-gradient(140% 160% at 25% 20%, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.02) 60%, transparent 100%)",
+            "--tint":
+              "radial-gradient(140% 160% at 25% 20%, rgba(255,255,255,0.16), rgba(255,255,255,0.02) 60%, transparent 100%)",
           } as React.CSSProperties
         }
       >
